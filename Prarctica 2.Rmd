@@ -1,7 +1,7 @@
 
 ---
-title: 'Tipología y ciclo de vida de los datos: Práctica 2: Limpieza y validación de los datos '
-author: "Autores: "Youness El Guennouni y Mario Gutiérrez Calvo de Mora"
+title: "Tipología y ciclo de vida de los datos: Práctica 2: Limpieza y validación de los datos"
+author: "Autores: Youness El Guennouni y Mario Gutiérrez Calvo de Mora"
 date: "Mayo 2019"
 output:
   html_document:
@@ -10,13 +10,11 @@ output:
     theme: cosmo
     toc: yes
     toc_depth: 2
-    includes:
-      in_header: mgmora_prac2.html
   pdf_document:
     highlight: zenburn
     toc: yes
-  word_document: default
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -55,8 +53,8 @@ library(ggplot2)
 library(dplyr)
 
 # Guardamos el juego de datos test y train en un único dataset
-test <- read.csv('titanic-test.csv',stringsAsFactors = FALSE)
-train <- read.csv('titanic-train.csv', stringsAsFactors = FALSE)
+test <- read.csv('test.csv',stringsAsFactors = FALSE)
+train <- read.csv('train.csv', stringsAsFactors = FALSE)
 
 # Unimos los dos juetos de datos en uno solo
 totalData <- bind_rows(train,test)
