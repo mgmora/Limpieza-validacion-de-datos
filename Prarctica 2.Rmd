@@ -1,4 +1,3 @@
-
 ---
 title: "Tipología y ciclo de vida de los datos: Práctica 2: Limpieza y validación de los datos"
 author: "Autores: Youness El Guennouni y Mario Gutiérrez Calvo de Mora"
@@ -9,7 +8,10 @@ output:
     number_sections: yes
     theme: cosmo
     toc: yes
-    toc_depth: 2
+    toc_depth: 4
+  includes:
+      in_header: PEC-header.html
+  word_document: default
   pdf_document:
     highlight: zenburn
     toc: yes
@@ -53,8 +55,8 @@ library(ggplot2)
 library(dplyr)
 
 # Guardamos el juego de datos test y train en un único dataset
-test <- read.csv('test.csv',stringsAsFactors = FALSE)
-train <- read.csv('train.csv', stringsAsFactors = FALSE)
+test <- read.csv('./data/titanic-test.csv',stringsAsFactors = FALSE)
+train <- read.csv('./data/titanic-train.csv', stringsAsFactors = FALSE)
 
 # Unimos los dos juetos de datos en uno solo
 totalData <- bind_rows(train,test)
