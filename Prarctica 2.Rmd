@@ -22,6 +22,14 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r load_libraries, include=FALSE}
+library(knitr)
+library(VIM)
+library(psych)
+library(ggplot2)
+library(dplyr)
+```
+
 ******
 # Introducción
 ******
@@ -50,9 +58,6 @@ Las técnicas que trabajaremos son las siguientes:
 Primer contacto con el juego de datos, visualizamos su estructura.  
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-# Cargamos los paquetes R que vamos a usar
-library(ggplot2)
-library(dplyr)
 
 # Guardamos el juego de datos test y train en un único dataset
 test <- read.csv('./data/titanic-test.csv',stringsAsFactors = FALSE)
@@ -76,8 +81,8 @@ colSums(totalData=="")
 # Tomamos valor "C" para los valores vacíos de la variable "Embarked"
 totalData$Embarked[totalData$Embarked==""]="C"
 
-# Tomamos la media para valores vacíos de la variable "Age"
-totalData$Age[is.na(totalData$Age)] <- mean(totalData$Age,na.rm=T)
+#Para los valores perdidos procedemos con aplicar la distancia de Gower
+totalData <- kNN(totalData)
 ```
 
 Discretizamos cuando tiene sentido y en función de cada variable.  
@@ -94,6 +99,60 @@ for (i in cols){
 
 # Después de los cambios, analizamos la nueva estructura del juego de datos
 str(totalData)
+```
+Cuadro de las estimaciónes no robustas y robustas.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+age_s<-summary(totalData$Age)
+pclass_s<-summary(totalData$Pclass)
+sibSp_s<-summary(totalData$SibSp)
+parch_s<-summary(totalData$Parch)
+fare_s<-summary(totalData$Fare)
+
+table_s <- suppressWarnings(rbind(age_s,pclass_s,sibSp_s,parch_s, fare_s))
+age_r <- c(sd(totalData$Age), winsor.mean(totalData$Age,trim=0.05), IQR(totalData$Age))
+pclass_r <- c(sd(totalData$Pclass), "NA", IQR(totalData$Pclass))
+#pclass_r <- c(sd(totalData$Pclass), winsor.mean(totalData$Pclass,trim=0.05), IQR(totalData$Pclass))
+sibSp_r <- c(sd(totalData$SibSp), winsor.mean(totalData$SibSp,trim=0.05), IQR(totalData$SibSp))
+parch_r <- c(sd(totalData$Parch), winsor.mean(totalData$Parch,trim=0.05), IQR(totalData$Parch))
+fare_r <- c(sd(totalData$Fare), winsor.mean(totalData$Fare,trim=0.05), IQR(totalData$Fare))
+
+table_r <- rbind(age_r,pclass_r,sibSp_r, parch_r, fare_r)
+table_res <- cbind(table_s, table_r)
+colnames( table_res) <- c("Min", "1st Qu", "Median", "Mean", "3rd Qu", "Max", "SD", "WINSOR", "IQR")
+kable(table_res)
+```
+Detactamos a los valores atípicos    
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#Los valores atípicos SibSp.
+boxplot.stats(totalData$SibSp)$out
+#Los valores atípicos Parch.
+boxplot.stats(totalData$Parch)$out
+#Los valores atípicos Fare.
+boxplot.stats(totalData$Fare)$out
+```
+
+Remplazamos a los valores atípicos
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#Parch
+qnt <- quantile(totalData$Parch, probs=c(.25, .75), na.rm = T)
+caps <- quantile(totalData$Parch, probs=c(.05, .95), na.rm = T)
+H <- 1.5 * IQR(totalData$Parch, na.rm = T)
+totalData$Parch[totalData$Parch < (qnt[1] - H)] <- caps[1]
+totalData$Parch[totalData$Parch > (qnt[1] + H)] <- caps[2]
+
+#Fare
+qnt <- quantile(totalData$Fare, probs=c(.25, .75), na.rm = T)
+caps <- quantile(totalData$Fare, probs=c(.05, .95), na.rm = T)
+H <- 1.5 * IQR(totalData$Fare, na.rm = T)
+totalData$Fare[totalData$Fare < (qnt[1] - H)] <- caps[1]
+totalData$Fare[totalData$Fare > (qnt[1] + H)] <- caps[2]
+
+#Los valores atípicos Parch.
+boxplot.stats(totalData$Parch)$out
+#Los valores atípicos Fare.
+boxplot.stats(totalData$Fare)$out
+
 ```
 
 
