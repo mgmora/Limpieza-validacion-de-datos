@@ -3,17 +3,7 @@ title: "Tipología y ciclo de vida de los datos: Práctica 2: Limpieza y validac
 author: "Autores: Youness El Guennouni y Mario Gutiérrez Calvo de Mora"
 date: "Mayo 2019"
 output:
-  html_document:
-    highlight: default
-    number_sections: yes
-    theme: cosmo
-    toc: yes
-    toc_depth: 4
-  includes:
-      in_header: PEC-header.html
-  word_document: default
   pdf_document:
-    highlight: zenburn
     toc: yes
 ---
 
