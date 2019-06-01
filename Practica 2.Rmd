@@ -1,9 +1,19 @@
 ---
-title: "Tipología y ciclo de vida de los datos: Práctica 2: Limpieza y validación de los datos"
+title: "Tipologáa y ciclo de vida de los datos: Práctica 2: Limpieza y validación de los datos"
 author: "Autores: Youness El Guennouni y Mario Gutiérrez Calvo de Mora"
 date: "Mayo 2019"
 output:
+  html_document:
+    highlight: default
+    number_sections: yes
+    theme: cosmo
+    toc: yes
+    toc_depth: 4
+  includes:
+      in_header: PEC-header.html
+  word_document: default
   pdf_document:
+    highlight: zenburn
     toc: yes
 ---
 
@@ -18,6 +28,7 @@ library(VIM)
 library(psych)
 library(ggplot2)
 library(dplyr)
+library(nortest)
 ```
 
 ******
@@ -26,24 +37,287 @@ library(dplyr)
 
 trabajaremos con el juego de datos "Titanic" que recoge datos sobre el famoso crucero y sobre el que es fácil realizar tareas de clasificación predictiva sobre la variable "Survived".
 
-Las actividades que llevaremos a cabo en esta práctica suelen enmarcarse en las fases iniciales de un proyecto de minería de datos y consisten en la selección de caraterísticas o variables y la preparación del juego de datos para posteriormente ser consumido por un algoritmo. 
+Las actividades que llevaremos a cabo en esta práctica suelen enmarcarse en las fases iniciales de un proyecto de mineráa de datos y consisten en la selección de caraterásticas o variables y la preparación del juego de datos para posteriormente ser consumido por un algoritmo. 
 
 Primeramente realizaremos el estudio de las variables de un juego de datos, es decir, haremos un trabajo descriptivo del mismo. Y de forma posterior, realizaremos el estudio de algoritmos predictivos y las conclusiones que se pueden extraer del estudio. 
 
-Siguiendo las principales etapas de un proyecto analítico, las diferentes tareas a realizar (y justificar) son las siguientes:
+Siguiendo las principales etapas de un proyecto analático, las diferentes tareas a realizar (y justificar) son las siguientes:
 
-1. Descripción del dataset. ¿Por qué es importante y qué pregunta/problema pretende responder?
+1. Descripción del dataset. Â¿Por qué es importante y qué pregunta/problema pretende responder?
 2. Integración y selección de los datos de interés a analizar.
 3. Limpieza de los datos.
-3.1. ¿Los datos contienen ceros o elementos vacíos? ¿Cómo gestionarías cada uno de estos casos?
+3.1. Â¿Los datos contienen ceros o elementos vacáos? Â¿Cómo gestionaráas cada uno de estos casos?
 3.2. Identificación y tratamiento de valores extremos.
 4. Análisis de los datos.
 4.1. Selección de los grupos de datos que se quieren analizar/comparar (planificación de los análisis a aplicar).
 4.2. Comprobación de la normalidad y homogeneidad de la varianza.
-4.3. Aplicación de pruebas estadísticas para comparar los grupos de datos. En función de los datos y el objetivo del estudio, aplicar pruebas de contraste de hipótesis, correlaciones, regresiones, etc. Aplicar al menos tres métodos de análisis diferentes.
+4.3. Aplicación de pruebas estadásticas para comparar los grupos de datos. En función de los datos y el objetivo del estudio, aplicar pruebas de contraste de hipótesis, correlaciones, regresiones, etc. Aplicar al menos tres métodos de análisis diferentes.
 5. Representación de los resultados a partir de tablas y gráficas.
-6. Resolución del problema. A partir de los resultados obtenidos, ¿cuáles son las conclusiones? ¿Los resultados permiten responder al problema?
-7. Código: Hay que adjuntar el código, preferiblemente en R, con el que se ha realizado la limpieza, análisis y representación de los datos. Si lo preferís, también podéis trabajar en Python.
+6. Resolución del problema. A partir de los resultados obtenidos, Â¿cuáles son las conclusiones? Â¿Los resultados permiten responder al problema?
+7. Código: Hay que adjuntar el código, preferiblemente en R, con el que se ha realizado la limpieza, análisis y representación de los datos. Si lo preferás, también podéis trabajar en Python.
+
+
+******
+# Descripción del dataset. Â¿Por qué es importante y qué pregunta/problema pretende responder?
+******
+
+El conjunto de datos objeto de análisis se ha obtenido a partir de este enlace en Kaggle y
+está constituido por 12 caracterásticas (columnas) que presentan a los 891 pasajeros (filas o registros).
+Entre los campos de este conjunto de datos, encontramos los siguientes:  
+
+  * **PassengerId**: identificador unico del pasajero.  
+  * **Survived**: Si el pasajero ha sobrevivido (1) o no (0)  
+  * **Pclass**: En que clase viajaba  
+  * **Name**: Nombre de pasajero  
+  * **Sex**: genéro de pasajero  
+  * **SibSp**: NÃºmero de hermanos / cónyuges a bordo  
+  * **Parch**: NÃºmero de padres / hijos a bordo  
+  * **Ticket**: NÃºmero de ticket  
+  * **Fare**: tárifa del viaje  
+  * **Cabin**: Cabina  
+  * **Embarked**: El puerto desde el cual ha embarcado el pasajero (C- Cherbourg, S - Southampton, Q - Queenstown)
+
+Es importante saber a que preguntas debemos de responder para definir un objetivo claro y no desviarnos de ello. En nuestro caso el problema que debemos de solventar seráa Â¿Que factores influyen directamente o indirectamente en la superviviencia o no de un pasajero? Además, se podrá proceder a crear modelos de regresión que permitan predecir la supervivencia o no de un pasajero en función de sus caráctiristas y contrastes de hipótesis que ayuden a identificar propiedades interesantes en las muestras que
+puedan ser inferidas con respecto a la población.
+
+# Integración y selección de los datos de interés a analizar
+
+Desde el análisis de los datos podemos descartar algunos factores desde el inicio como el nÃºmero de ticket, tarifa o nombre de pasajero. Otro dato que decidimos no tenerle en cuenta es la cabina ya que más de 70% vienen vacios.
+
+## Lectura de ficheros
+Cargar a los archivos `train.csv` y`test.csv`. Una vez cargado el archivo, valida que los tipos de datos
+son los correctos. Si no es asá, conviertelos al tipo oportuno.
+
+* Archivo de datos (`train.csv`)  
+```{r lectura, echo=TRUE, eval=TRUE}
+ train <- read.csv( "train.csv")
+ head(train)
+ 
+ sapply( train, class)
+```
+
+* Archivo de los tests (`test.csv`)
+```{r lectura2, echo=TRUE, eval=TRUE}
+ test <- read.csv( "test.csv")
+ head(test)
+ 
+ sapply( test, class)
+```
+
+## Borrar a las columnas innecesarias
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+train <- select(train, -Name, -Fare, -Ticket, -Cabin)
+test  <- select(test, -Name, -Fare, -Ticket, -Cabin)
+head (train)
+```
+
+# Limpieza de datos
+En esta sección vamos a llevar a cabo el proceso de limpieza de datos que consiste en:
+
+## Los datos contienen ceros o elementos vacíos
+A continuación vamos a detectar a los valores vac?os y nulos.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Estad?sticas de valores vacáos
+colSums(is.na(train))
+colSums(train=="")
+
+```
+
+Llegados a este punto debemos decidir cómo manejar estos registros que contienen valores desconocidos para algÃºn campo. Una opción podráa ser eliminar esos registros que incluyen este tipo de valores, pero ello supondráa desaprovechar información.  
+Como alternativa, se empleará un método de imputación de valores basado en la similitud o diferencia entre los registros: la imputación basada en k vecinos más próximos.  La elección de esta alternativa se realiza bajo la hipótesis de que nuestros registros guardan cierta relación. No obstante, es mejor trabajar con datos aproximados que con los propios elementos vacíos, ya que obtendremos análisis con menor margen de error.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#Para los valores perdidos procedemos con aplicar la distancia de Gower
+train$Age <- kNN(train)$Age
+train$Embarked <- kNN(train)$Embarked
+train$Parch <- kNN(train)$Parch
+train$SibSp <- kNN(train)$SibSp
+train$Survived <- kNN(train)$Survived
+#train <- kNN(train)
+
+#Rempazar la edad por la media
+train$Age[is.na(train$Age)] <- winsor.mean(train$Age,trim=0.05)
+
+colSums(is.na(train))
+colSums(train=="")
+
+
+```
+
+Discretizamos cuando tiene sentido y en función de cada variable.  
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# ¿Para qué variables tendráa sentido un proceso de discretización?
+apply(train,2, function(x) length(unique(x)))
+
+# Discretizamos las variables con pocas clases
+cols<-c("Survived","Pclass","Sex","Embarked")
+for (i in cols){
+  train[,i] <- as.factor(train[,i])
+}
+
+# Después de los cambios, analizamos la nueva estructura del juego de datos
+str(train)
+```
+
+## Identificación y tratamiento de valores extremos
+
+* Cuadro de las estimaciónes no robustas y robustas.
+
+En el siguiente cuadro se van a mostrar a las estimaciones no robustas y robustas por un posible uso a la hora de remplazar a los valores perdidos o a los extremos.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+age_s<-summary(train$Age)
+pclass_s<-summary(train$Pclass)
+sibSp_s<-summary(train$SibSp)
+parch_s<-summary(train$Parch)
+
+table_s <- suppressWarnings(rbind(age_s,pclass_s,sibSp_s,parch_s))
+age_r <- c(sd(train$Age), winsor.mean(train$Age,trim=0.05), IQR(train$Age))
+pclass_r <- c(sd(train$Pclass), "NA", IQR(train$Pclass))
+#pclass_r <- c(sd(totalData$Pclass), winsor.mean(totalData$Pclass,trim=0.05), IQR(totalData$Pclass))
+sibSp_r <- c(sd(train$SibSp), winsor.mean(train$SibSp,trim=0.05), IQR(train$SibSp))
+parch_r <- c(sd(train$Parch), winsor.mean(train$Parch,trim=0.05), IQR(train$Parch))
+
+table_r <- rbind(age_r,pclass_r,sibSp_r, parch_r)
+table_res <- cbind(table_s, table_r)
+colnames( table_res) <- c("Min", "1st Qu", "Median", "Mean", "3rd Qu", "Max", "SD", "WINSOR", "IQR")
+kable(table_res)
+```
+
+* Detactamos a los valores extremos    
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#Los valores atápicos SibSp.
+boxplot.stats(train$SibSp)$out
+#Los valores atápicos Parch.
+boxplot.stats(train$Parch)$out
+```
+
+* Remplazamos a los valores extremos
+
+Se van a sustituir a los valores atápicos por los valores de l primer o tercer cuadro dependiendo si es un valor atipico minimo o máximo. Dicha sustitución nos aportará unos modelos más fiables.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#SibSp
+qnt <- quantile(train$SibSp, probs=c(.25, .75), na.rm = T)
+caps <- quantile(train$SibSp, probs=c(.10, .90), na.rm = T)
+H_SibSp <- 1.5 * IQR(train$SibSp, na.rm = T)
+train$SibSp[train$SibSp < (qnt[1] - H_SibSp)] <- caps[1]
+train$SibSp[train$SibSp > (qnt[1] + H_SibSp)] <- caps[2]
+
+#Los valores atápicos Parch.
+boxplot.stats(train$SibSp)$out
+
+#Parch
+qnt <- quantile(train$Parch, probs=c(.25, .75), na.rm = T)
+caps <- quantile(train$Parch, probs=c(.10, .90), na.rm = T)
+H_Parch <- 1.5 * IQR(train$Parch, na.rm = T)
+train$Parch[train$Parch < (qnt[1] - H_Parch)] <- caps[1]
+train$Parch[train$Parch > (qnt[1] + H_Parch)] <- caps[2]
+
+#Los valores atápicos Parch.
+boxplot.stats(train$Parch)$out
+
+```
+
+En el caso de Número de hermanos|cónyuges a bordo hemos podido eleminar a los valores atipicos, en cambio para el Número de padres|hijos a bordo sigue habiendo valores extremos pero que contienen un valor menos agresivo. 
+
+
+# Análisis de los datos
+
+## Selección de los grupos de datos que se quieren analizar/comparar (planificación de los análisis a aplicar)  
+A continuación, se seleccionan los grupos dentro de nuestro conjunto de datos que pueden resultar interesantes para analizar y/o comparar. No obstante, como se verá en el apartado consistente en la realización de pruebas estadásticas, no todos se utilizarán.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Agrupación por genero
+train.female <- train[train$Sex == "female",]
+train.male <- train[train$Sex == "male",]
+
+# Agrupación por puerta de embarque
+train.c <- train[train$Embarked == "C",]
+train.s <- train[train$Embarked == "S",]
+train.q <- train[train$Embarked == "Q",]
+
+# Agrupación por Parch
+train.parch.cero <- train[train$Parch == "0",]
+train.parch.mayor <- train[train$Parch > "0",]
+
+# Agrupación por Parch
+train.sibSp.cero <- train[train$SibSp == "0",]
+train.sibSp.mayor <- train[train$SibSp > "0",]
+
+#Usar el termino de tamaÃ±o de la familia sumando parch y SibSp
+train$FamilySize <- train$SibSp + train$Parch +1;
+
+
+```
+
+## Comprobación de la normalidad y homogeneidad de la varianza
+Para la comprobación de que los valores que toman nuestras variables cuantitativas provienen
+de una población distribuida normalmente, utilizaremos la prueba de normalidad de Anderson-
+Darling.
+
+Asá, se comprueba que para que cada prueba se obtiene un p-valor superior al nivel de
+significación prefijado $\alpha$ = 0, 05. Si esto se cumple, entonces se considera que variable en
+cuestión sigue una distribución normal.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+alpha = 0.05
+col.names = colnames(train)
+for (i in 1:ncol(train)) {
+  if (i == 1) cat("Variables que no siguen una distribución normal:\n")
+  if (is.integer(train[,i]) | is.numeric(train[,i])) {
+    p_val = ad.test(train[,i])$p.value
+    if (p_val < alpha) {
+      cat(col.names[i])
+      # Format output
+      if (i < ncol(train) - 1) cat(", ")
+      if (i %% 3 == 0) cat("\n")
+    }
+  }
+}
+```
+
+
+## Aplicación de pruebas estadásticas para comparar los grupos de datos. En función de los datos y el objetivo del estudio, aplicar pruebas de contraste de hipótesis, correlaciones, regresiones, etc. Aplicar al menos tres métodos de análisis diferentes
+Vamos a estudiar la homogeneidad de varianzas mediante la aplicación de un test de Fligner-Killeen. En este caso, estudiaremos esta homogeneidad en cuanto al genero del pasajero. En el siguiente test, la hipótesis nula consiste en que ambas varianzas son iguales.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#fligner.test(Survived ~ Sex, data = train)
+```
+
+Puesto que obtenemos un p-valor inferior a 0,05, no aceptamos la hipótesis de que las varianzas de ambas muestras son homogéneas. Detectamos que el genero de pasajero es un factor que ha influido en la supervivencia de los pasajeros.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#fligner.test(Survived ~ Embarked, data = train)
+```
+
+Procedemos a realizar un análisis de correlación entre las distintas variables para determinar cuáles de ellas ejercen una mayor influencia sobre el precio final del veháculo. Para ello, se utilizará el coeficiente de correlación de Spearman, puesto que hemos visto que tenemos datos que no siguen una distribución normal.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+corr_matrix <- matrix(nc = 2, nr = 0)
+colnames(corr_matrix) <- c("estimate", "p-value")
+# Calcular el coeficiente de correlación para cada variable cuantitativa
+# con respecto al campo "precio"
+#for (i in 3:(ncol(train) - 1)) {
+ # if (is.integer(train[,i]) | is.numeric(train[,i])) {
+  #  spearman_test = cor.test(train[,i], train[,2], method = "spearman")
+   # corr_coef = spearman_test$estimate
+    #p_val = spearman_test$p.value
+    # Add row to matrix
+    #pair = matrix(ncol = 2, nrow = 1)
+    #pair[1][1] = corr_coef
+    #pair[2][1] = p_val
+    #corr_matrix <- rbind(corr_matrix, pair)
+    #rownames(corr_matrix)[nrow(corr_matrix)] <- colnames(train)[i]
+  #}
+#}
+print(corr_matrix)
+```
+
+# Representación de los resultados a partir de tablas y gráficas
+
+# Resolución del problema. A partir de los resultados obtenidos, Â¿cuáles son las conclusiones? Â¿Los resultados permiten responder al problema?
+
+
 
 ******
 # Ejemplo de estudio visual con el juego de datos Titanic
@@ -55,7 +329,7 @@ Primer contacto con el juego de datos, visualizamos su estructura.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 
-# Guardamos el juego de datos test y train en un único dataset
+# Guardamos el juego de datos test y train en un Ãºnico dataset
 test <- read.csv('./data/titanic-test.csv',stringsAsFactors = FALSE)
 train <- read.csv('./data/titanic-train.csv', stringsAsFactors = FALSE)
 
@@ -67,14 +341,14 @@ filas=dim(train)[1]
 str(totalData)
 ```
 
-Trabajamos los atributos con valores vacíos.  
+Trabajamos los atributos con valores vacáos.  
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-# Estadísticas de valores vacíos
+# Estadásticas de valores vacáos
 colSums(is.na(totalData))
 colSums(totalData=="")
 
-# Tomamos valor "C" para los valores vacíos de la variable "Embarked"
+# Tomamos valor "C" para los valores vacáos de la variable "Embarked"
 totalData$Embarked[totalData$Embarked==""]="C"
 
 #Para los valores perdidos procedemos con aplicar la distancia de Gower
@@ -84,7 +358,7 @@ totalData <- kNN(totalData)
 Discretizamos cuando tiene sentido y en función de cada variable.  
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-# Â¿Para qué variables tendría sentido un proceso de discretización?
+# ¿Para qué variables tendráa sentido un proceso de discretización?
 apply(totalData,2, function(x) length(unique(x)))
 
 # Discretizamos las variables con pocas clases
@@ -117,18 +391,18 @@ table_res <- cbind(table_s, table_r)
 colnames( table_res) <- c("Min", "1st Qu", "Median", "Mean", "3rd Qu", "Max", "SD", "WINSOR", "IQR")
 kable(table_res)
 ```
-Detactamos a los valores atípicos    
+Detactamos a los valores atápicos    
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-#Los valores atípicos SibSp.
+#Los valores atápicos SibSp.
 boxplot.stats(totalData$SibSp)$out
-#Los valores atípicos Parch.
+#Los valores atápicos Parch.
 boxplot.stats(totalData$Parch)$out
-#Los valores atípicos Fare.
+#Los valores atápicos Fare.
 boxplot.stats(totalData$Fare)$out
 ```
 
-Remplazamos a los valores atípicos
+Remplazamos a los valores atápicos
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 #Parch
 qnt <- quantile(totalData$Parch, probs=c(.25, .75), na.rm = T)
@@ -144,9 +418,9 @@ H <- 1.5 * IQR(totalData$Fare, na.rm = T)
 totalData$Fare[totalData$Fare < (qnt[1] - H)] <- caps[1]
 totalData$Fare[totalData$Fare > (qnt[1] + H)] <- caps[2]
 
-#Los valores atípicos Parch.
+#Los valores atápicos Parch.
 boxplot.stats(totalData$Parch)$out
-#Los valores atípicos Fare.
+#Los valores atápicos Fare.
 boxplot.stats(totalData$Fare)$out
 
 ```
@@ -192,7 +466,7 @@ ggplot(data = totalData[1:filas,],aes(x=Parch,fill=Survived))+geom_bar()
 # Vemos como las forma de estos dos gráficos es similar. Este hecho nos puede indicar presencia de correlaciones altas.
 ```
 
-Veamos un ejemplo de construcción de una variable nueva: Tamaño de familia
+Veamos un ejemplo de construcción de una variable nueva: TamaÃ±o de familia
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 
