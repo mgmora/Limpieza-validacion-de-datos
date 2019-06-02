@@ -43,10 +43,10 @@ Primeramente realizaremos el estudio de las variables de un juego de datos, es d
 
 Siguiendo las principales etapas de un proyecto analático, las diferentes tareas a realizar (y justificar) son las siguientes:
 
-1. Descripción del dataset. Â¿Por qué es importante y qué pregunta/problema pretende responder?
+1. Descripción del dataset. ¿Por qué es importante y qué pregunta/problema pretende responder?
 2. Integración y selección de los datos de interés a analizar.
 3. Limpieza de los datos.
-3.1. Â¿Los datos contienen ceros o elementos vacáos? Â¿Cómo gestionaráas cada uno de estos casos?
+3.1. ¿Los datos contienen ceros o elementos vacáos? ¿Cómo gestionaráas cada uno de estos casos?
 3.2. Identificación y tratamiento de valores extremos.
 4. Análisis de los datos.
 4.1. Selección de los grupos de datos que se quieren analizar/comparar (planificación de los análisis a aplicar).
@@ -58,7 +58,7 @@ Siguiendo las principales etapas de un proyecto analático, las diferentes tarea
 
 
 ******
-# Descripción del dataset. Â¿Por qué es importante y qué pregunta/problema pretende responder?
+# Descripción del dataset. ¿Por qué es importante y qué pregunta/problema pretende responder?
 ******
 
 El conjunto de datos objeto de análisis se ha obtenido a partir de este enlace en Kaggle y
@@ -70,19 +70,18 @@ Entre los campos de este conjunto de datos, encontramos los siguientes:
   * **Pclass**: En que clase viajaba  
   * **Name**: Nombre de pasajero  
   * **Sex**: genéro de pasajero  
-  * **SibSp**: NÃºmero de hermanos / cónyuges a bordo  
-  * **Parch**: NÃºmero de padres / hijos a bordo  
-  * **Ticket**: NÃºmero de ticket  
+  * **SibSp**: Numero de hermanos / cónyuges a bordo  
+  * **Parch**: Numero de padres / hijos a bordo  
+  * **Ticket**: Numero de ticket  
   * **Fare**: tárifa del viaje  
   * **Cabin**: Cabina  
   * **Embarked**: El puerto desde el cual ha embarcado el pasajero (C- Cherbourg, S - Southampton, Q - Queenstown)
 
-Es importante saber a que preguntas debemos de responder para definir un objetivo claro y no desviarnos de ello. En nuestro caso el problema que debemos de solventar seráa Â¿Que factores influyen directamente o indirectamente en la superviviencia o no de un pasajero? Además, se podrá proceder a crear modelos de regresión que permitan predecir la supervivencia o no de un pasajero en función de sus caráctiristas y contrastes de hipótesis que ayuden a identificar propiedades interesantes en las muestras que
-puedan ser inferidas con respecto a la población.
+Es importante saber a que preguntas debemos de responder para definir un objetivo claro y no desviarnos de ello. En nuestro caso el problema que debemos de solventar será ¿Que factores influyen directamente o indirectamente en la superviviencia o no de un pasajero? Además, se podrá proceder a crear modelos de regresión que permitan predecir la supervivencia o no de un pasajero en función de sus caráctiristas y contrastes de hipótesis que ayuden a identificar propiedades interesantes en las muestras que puedan ser inferidas con respecto a la población.
 
 # Integración y selección de los datos de interés a analizar
 
-Desde el análisis de los datos podemos descartar algunos factores desde el inicio como el nÃºmero de ticket, tarifa o nombre de pasajero. Otro dato que decidimos no tenerle en cuenta es la cabina ya que más de 70% vienen vacios.
+Desde el análisis de los datos podemos descartar algunos factores desde el inicio como el numero de ticket, tarifa o nombre de pasajero. Otro dato que decidimos no tenerle en cuenta es la cabina ya que más de 70% vienen vacios.
 
 ## Lectura de ficheros
 Cargar a los archivos `train.csv` y`test.csv`. Una vez cargado el archivo, valida que los tipos de datos
@@ -106,8 +105,8 @@ son los correctos. Si no es asá, conviertelos al tipo oportuno.
 
 ## Borrar a las columnas innecesarias
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-train <- select(train, -Name, -Fare, -Ticket, -Cabin)
-test  <- select(test, -Name, -Fare, -Ticket, -Cabin)
+train <- select(train, -Name, -Fare, -Ticket )
+test  <- select(test, -Name, -Fare, -Ticket )
 head (train)
 ```
 
@@ -115,7 +114,7 @@ head (train)
 En esta sección vamos a llevar a cabo el proceso de limpieza de datos que consiste en:
 
 ## Los datos contienen ceros o elementos vacíos
-A continuación vamos a detectar a los valores vac?os y nulos.
+A continuación vamos a detectar a los valores vacios y nulos.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Estad?sticas de valores vacáos
@@ -124,42 +123,29 @@ colSums(train=="")
 
 ```
 
-Llegados a este punto debemos decidir cómo manejar estos registros que contienen valores desconocidos para algÃºn campo. Una opción podráa ser eliminar esos registros que incluyen este tipo de valores, pero ello supondráa desaprovechar información.  
+Llegados a este punto debemos decidir cómo manejar estos registros que contienen valores desconocidos para algun campo. Una opción podrá ser eliminar esos registros que incluyen este tipo de valores, pero ello supondráa desaprovechar información.  
 Como alternativa, se empleará un método de imputación de valores basado en la similitud o diferencia entre los registros: la imputación basada en k vecinos más próximos.  La elección de esta alternativa se realiza bajo la hipótesis de que nuestros registros guardan cierta relación. No obstante, es mejor trabajar con datos aproximados que con los propios elementos vacíos, ya que obtendremos análisis con menor margen de error.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 #Para los valores perdidos procedemos con aplicar la distancia de Gower
-train$Age <- kNN(train)$Age
-train$Embarked <- kNN(train)$Embarked
-train$Parch <- kNN(train)$Parch
-train$SibSp <- kNN(train)$SibSp
-train$Survived <- kNN(train)$Survived
-#train <- kNN(train)
+#train$Age <- kNN(train)$Age
+#train$Embarked <- kNN(train)$Embarked
+#train$Parch <- kNN(train)$Parch
+#train$SibSp <- kNN(train)$SibSp
+#train$Survived <- kNN(train)$Survived
+train <- kNN(train)
 
 #Rempazar la edad por la media
 train$Age[is.na(train$Age)] <- winsor.mean(train$Age,trim=0.05)
 
-colSums(is.na(train))
-colSums(train=="")
+# Tomamos valor "C" para los valores vacáos de la variable "Embarked"
+train$Embarked[train$Embarked==""]="C"
+
+sapply(train, function(x) sum(is.na(x)))
 
 
 ```
 
-Discretizamos cuando tiene sentido y en función de cada variable.  
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-# ¿Para qué variables tendráa sentido un proceso de discretización?
-apply(train,2, function(x) length(unique(x)))
-
-# Discretizamos las variables con pocas clases
-cols<-c("Survived","Pclass","Sex","Embarked")
-for (i in cols){
-  train[,i] <- as.factor(train[,i])
-}
-
-# Después de los cambios, analizamos la nueva estructura del juego de datos
-str(train)
-```
 
 ## Identificación y tratamiento de valores extremos
 
@@ -176,7 +162,6 @@ parch_s<-summary(train$Parch)
 table_s <- suppressWarnings(rbind(age_s,pclass_s,sibSp_s,parch_s))
 age_r <- c(sd(train$Age), winsor.mean(train$Age,trim=0.05), IQR(train$Age))
 pclass_r <- c(sd(train$Pclass), "NA", IQR(train$Pclass))
-#pclass_r <- c(sd(totalData$Pclass), winsor.mean(totalData$Pclass,trim=0.05), IQR(totalData$Pclass))
 sibSp_r <- c(sd(train$SibSp), winsor.mean(train$SibSp,trim=0.05), IQR(train$SibSp))
 parch_r <- c(sd(train$Parch), winsor.mean(train$Parch,trim=0.05), IQR(train$Parch))
 
@@ -186,45 +171,77 @@ colnames( table_res) <- c("Min", "1st Qu", "Median", "Mean", "3rd Qu", "Max", "S
 kable(table_res)
 ```
 
-* Detactamos a los valores extremos    
+* Detactamos a los valores extremos
+
+Los valores extremos o outliers son aquellos que parecen no ser congruentes sin los comparamos con el resto de los datos. Para identificarlos, podemos hacer uso de dos vías: (1) representar un diagrama de caja por cada variable y ver qué valores distan mucho del rango intercuartílico(la caja) o (2) utilizar la función boxplots.stats() de R, la cual se emplea a continuación.
+Así, se mostrarán sólo los valores atípicos para aquellas variables que los contienen:
+
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
+#Los valores atápicos Age
+boxplot.stats(train$Age)$out
 #Los valores atápicos SibSp.
 boxplot.stats(train$SibSp)$out
 #Los valores atápicos Parch.
 boxplot.stats(train$Parch)$out
 ```
 
-* Remplazamos a los valores extremos
-
-Se van a sustituir a los valores atápicos por los valores de l primer o tercer cuadro dependiendo si es un valor atipico minimo o máximo. Dicha sustitución nos aportará unos modelos más fiables.
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-#SibSp
-qnt <- quantile(train$SibSp, probs=c(.25, .75), na.rm = T)
-caps <- quantile(train$SibSp, probs=c(.10, .90), na.rm = T)
-H_SibSp <- 1.5 * IQR(train$SibSp, na.rm = T)
-train$SibSp[train$SibSp < (qnt[1] - H_SibSp)] <- caps[1]
-train$SibSp[train$SibSp > (qnt[1] + H_SibSp)] <- caps[2]
-
-#Los valores atápicos Parch.
-boxplot.stats(train$SibSp)$out
-
-#Parch
-qnt <- quantile(train$Parch, probs=c(.25, .75), na.rm = T)
-caps <- quantile(train$Parch, probs=c(.10, .90), na.rm = T)
-H_Parch <- 1.5 * IQR(train$Parch, na.rm = T)
-train$Parch[train$Parch < (qnt[1] - H_Parch)] <- caps[1]
-train$Parch[train$Parch > (qnt[1] + H_Parch)] <- caps[2]
-
-#Los valores atápicos Parch.
-boxplot.stats(train$Parch)$out
-
-```
-
-En el caso de Número de hermanos|cónyuges a bordo hemos podido eleminar a los valores atipicos, en cambio para el Número de padres|hijos a bordo sigue habiendo valores extremos pero que contienen un valor menos agresivo. 
+No obstante, si revisamos los anteriores datos para varios pasajeros escogido aleatoriamente de
+esta web, comprobamos que son valores que perfectamente pueden darse. Es por ello que el manejo de
+estos valores extremos consistirá en simplemente dejarlos como actualmente están recogidos.
 
 
 # Análisis de los datos
+
+Se representan gráficamente las variables del conjunto de datos para poder visualizar la distribución de valores de las variables. 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+Embarkedsum <- summarize( group_by(train, Embarked), n=length(Embarked))
+ggplot( Embarkedsum, aes(x="", y=n, fill=Embarked)) +
+geom_bar(width = 1, stat = "identity") +
+coord_polar("y", start=0) + ggtitle("Embarked")
+```
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+Survivedsum <- summarize( group_by(train, Survived), n=length(Survived))
+ggplot( Survivedsum, aes(x="", y=n, fill=Survived)) +
+geom_bar(width = 1, stat = "identity") +
+coord_polar("y", start=0) + ggtitle("Survived")
+```
+
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+Sexsum <- summarize( group_by(train, Sex), n=length(Sex))
+ggplot( Sexsum, aes(x="", y=n, fill=Sex)) +
+geom_bar(width = 1, stat = "identity") +
+coord_polar("y", start=0) + ggtitle("Sex")
+```
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+Pclasssum <- summarize( group_by(train, Pclass), n=length(Pclass))
+ggplot( Pclasssum, aes(x="", y=n, fill=Pclass)) +
+geom_bar(width = 1, stat = "identity") +
+coord_polar("y", start=0) + ggtitle("Pclass")
+```
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+Agesum <- summarize( group_by(train, Age), n=length(Age))
+ggplot(Agesum, aes(x="", y=n, fill=Age))+
+geom_bar(width = 1, stat = "identity") + ggtitle("Age")+
+coord_polar("y", start=0)
+```
+
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+par(mfrow=c(1,3))
+#boxplot(train$Survived, main="Survived")
+boxplot(train$Age, main="Age")
+boxplot(train$Parch, main="Parch")
+boxplot(train$SibSp, main="SibSp")
+#boxplot(train$Pclass, main="Pclass")
+par(mfrow=c(1,1))
+```
+
 
 ## Selección de los grupos de datos que se quieren analizar/comparar (planificación de los análisis a aplicar)  
 A continuación, se seleccionan los grupos dentro de nuestro conjunto de datos que pueden resultar interesantes para analizar y/o comparar. No obstante, como se verá en el apartado consistente en la realización de pruebas estadásticas, no todos se utilizarán.
@@ -257,7 +274,7 @@ Para la comprobación de que los valores que toman nuestras variables cuantitati
 de una población distribuida normalmente, utilizaremos la prueba de normalidad de Anderson-
 Darling.
 
-Asá, se comprueba que para que cada prueba se obtiene un p-valor superior al nivel de
+Asi, se comprueba que para que cada prueba se obtiene un p-valor superior al nivel de
 significación prefijado $\alpha$ = 0, 05. Si esto se cumple, entonces se considera que variable en
 cuestión sigue una distribución normal.
 
@@ -280,12 +297,15 @@ for (i in 1:ncol(train)) {
 
 
 ## Aplicación de pruebas estadásticas para comparar los grupos de datos. En función de los datos y el objetivo del estudio, aplicar pruebas de contraste de hipótesis, correlaciones, regresiones, etc. Aplicar al menos tres métodos de análisis diferentes
-Vamos a estudiar la homogeneidad de varianzas mediante la aplicación de un test de Fligner-Killeen. En este caso, estudiaremos esta homogeneidad en cuanto al genero del pasajero. En el siguiente test, la hipótesis nula consiste en que ambas varianzas son iguales.
+
+Vamos a estudiar la homogeneidad de varianzas mediante la aplicación de un test de Fligner-Killeen. En este caso, estudiaremos esta homogeneidad en cuanto a la cabina del pasajero. En el siguiente test, la hipótesis nula consiste en que ambas varianzas son iguales.
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-#fligner.test(Survived ~ Sex, data = train)
+#fligner.test(apply(Survived, 2, function(x) as.numeric(as.character(x))) ~ Sex, data = train)
+fligner.test(Survived ~ Cabin , data = train)
+#fligner.test(train)
 ```
 
-Puesto que obtenemos un p-valor inferior a 0,05, no aceptamos la hipótesis de que las varianzas de ambas muestras son homogéneas. Detectamos que el genero de pasajero es un factor que ha influido en la supervivencia de los pasajeros.
+Puesto que obtenemos un p-valor superior a 0,05, aceptamos la hipótesis de que las varianzas de ambas muestras son homogéneas. Detectamos la cabina de pasajero no es un factor que ha influido en la supervivencia de los pasajeros.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 #fligner.test(Survived ~ Embarked, data = train)
@@ -296,154 +316,159 @@ Procedemos a realizar un análisis de correlación entre las distintas variables
 corr_matrix <- matrix(nc = 2, nr = 0)
 colnames(corr_matrix) <- c("estimate", "p-value")
 # Calcular el coeficiente de correlación para cada variable cuantitativa
-# con respecto al campo "precio"
-#for (i in 3:(ncol(train) - 1)) {
- # if (is.integer(train[,i]) | is.numeric(train[,i])) {
-  #  spearman_test = cor.test(train[,i], train[,2], method = "spearman")
-   # corr_coef = spearman_test$estimate
-    #p_val = spearman_test$p.value
-    # Add row to matrix
-    #pair = matrix(ncol = 2, nrow = 1)
-    #pair[1][1] = corr_coef
-    #pair[2][1] = p_val
-    #corr_matrix <- rbind(corr_matrix, pair)
-    #rownames(corr_matrix)[nrow(corr_matrix)] <- colnames(train)[i]
-  #}
-#}
+# con respecto al campo "Survived"
+for (i in 3:(ncol(train) - 1)) {
+  if (is.integer(train[,i]) | is.numeric(train[,i])) {
+    spearman_test = cor.test(train[,i], train[,2], method = "spearman")
+    corr_coef = spearman_test$estimate
+    p_val = spearman_test$p.value
+    #z Add row to matrix
+    pair = matrix(ncol = 2, nrow = 1)
+    pair[1][1] = corr_coef
+    pair[2][1] = p_val
+    corr_matrix <- rbind(corr_matrix, pair)
+    rownames(corr_matrix)[nrow(corr_matrix)] <- colnames(train)[i]
+  }
+}
 print(corr_matrix)
 ```
 
+Así, identificamos cuáles son las variables más correlacionadas con el precio en función de su proximidad con los valores -1 y +1. Teniendo esto en cuenta, queda patente cómo la variable más relevante en la supervivencia es la clase donde viajaba el pasajero (Pclass).
+
+Nota. Para cada coeficiente de correlación se muestra también su p-valor asociado, puesto
+que éste puede dar información acerca del peso estadístico de la correlación obtenida.
+
+##¿Ha influido el genero en la supervivencia de los pasajeros?
+Nos preguntamos si existen diferencias significativas en la supervivencia de los hombres en relación a las mujeres. Para responder a esta pregunta, siga los pasos que se detallan a continuación.
+
+el cotraste de hipótesis de dos muestras sobre sobre la diferencia de medidas, el cual es unilateral atendiendo a la formulación de la hipótesis alternativa:
+
+$H_0: \mu_{1} - \mu_{2} = 0$ 
+
+$H_1: \mu_{1} - \mu_{2} < 0$ 
+
+donde μ1 es la media de la población de la que se extrae la primera muestra y μ2 es la media
+de la población de la que extrae la segunda. Así, tomaremos $\alpha$ = 0, 05.
+
+### Test de Shapiro
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#Test d'igualtat de variances
+#H0: F (rati de variàncies) = 1
+#H0 : F diferent d'1
+shapiro.test(train$Survived[train$Sex=="male"])
+#var.test(train$Survived[train$Sex=="male"], train$Survived[train$sex=="female"], alternative = "two.sided")
+```
+Según el test Shapiro Wilk, podemos asumir normalidad. Por lo tanto, aplicamos un test de dos muestras independientes para la diferencia de las medias. Aplicamos el caso de datos normales, con varianza desconocida. El test es bilateral (dos colas).
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#Test d'igualtat de variances
+#H0: F (rati de variàncies) = 1
+#H0 : F diferent d'1
+var.test(train$Survived[train$Sex=="male"], train$Survived[train$Sex=="female"], alternative = "two.sided")
+```
+El resultado del test F es que podemos asumir igualdad de varianzas. Por lo tanto, aplicamos test t de dos muestras independientes para la diferencia de medias, varianzas desconocidas e iguales. El test es bilateral.
+
+### Calculo manual
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+nF<-nrow( train.male)
+meanF<-mean(train.male$Survived)
+sdF <- sd( train.male$Survived)
+#
+nM<-nrow( train.female )
+meanM<-mean(train.female$Survived)
+sdM <- sd( train.female$Survived)
+#
+s <-sqrt( ((nF-1)*sdF^2 + (nM-1)*sdM^2 )/(nF+nM-2) )
+Sb <- s*sqrt(1/nF + 1/nM)
+t <- (meanF-meanM)/ Sb
+t
+alfa <- (1-0.95)
+tcritical <- qt( alfa/2, df=nF+nM-2, lower.tail=FALSE )
+#two-sided
+pvalue<-pt( abs(t), df=nF+nM-2, lower.tail=FALSE )*2
+#Print info
+info<-data.frame(nF,meanF,sdF,nM,meanM,sdM,t,tcritical,pvalue)
+
+info
+
+```
+como el valor de p es `r info$pvalue` < 0.05 podemos rechazar la hipótesis nula. La respuesta seria que si ha influido el genero.
+
+### Aplicando el test no parametrico de Mann-Whitney
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+t.test(train.male$Survived, train.female$Survived, alternative = "less")
+```
+Puesto que obtenemos un p-valor menor que el valor de significación fijado, rechazamos la hipótesis nula. Por tanto, podemos concluir que, efectivamente, el genero de un pasajero ha influido en la supervivencia.
+
+
+##Modelo de regresión lineal
+Tal y como se planteó en los objetivos de la actividad, resultará de mucho interés poder realizar predicciones sobre la supervivencia de un pasajero dadas sus características. Así, se calculará un modelo de regresión lineal utilizando regresores tanto cuantitativos como cualitativos con el que poder realizar las predicciones de la supervivencia o no.
+
+Para obtener un modelo de regresión lineal considerablemente eficiente, lo que haremos será obtener varios modelos de regresión utilizando las variables que estén más correladas con respecto al precio, según la tabla obtenido en el apartado 5.3. Así, de entre todos los modelos que tengamos, escogeremos el mejor
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Regresores cuantitativos con mayor coeficiente
+# de correlación con respecto a la supervivencia
+legth = train$length
+width = train$width
+train.Age = train$Age
+train.sibSp = train$SibSp
+train.Parch = train$Parch
+train.FamilySize = train$FamilySize
+# Regresores cualitativos
+train.Sex = train$Sex
+train.Pclass = train$Pclass
+train.Embarked = train$Embarked
+# Variable a predecir
+Survived = train$Survived
+# Generación de varios modelos
+modelo1 <- lm(Survived ~ train.Age + train.Sex + train.Embarked + train.sibSp + train.Parch + train.Pclass, data = train)
+modelo2 <- lm(Survived ~ train.sibSp + train.Sex + train.Embarked + train.Parch + train.Pclass, data = train)
+modelo3 <- lm(Survived ~ train.Age + train.Sex + train.Embarked + train.Parch + train.Pclass, data = train)
+modelo4 <- lm(Survived ~ train.Age + train.Sex + train.Embarked + train.sibSp + train.Pclass, data = train)
+modelo5 <- lm(Survived ~ train.Age + train.Sex + train.Embarked + train.sibSp + train.Parch , data = train)
+modelo6 <- lm(Survived ~ train.Age + train.Sex + train.Embarked + train.FamilySize + train.Pclass, data = train)
+modelo7 <- lm(Survived ~ train.Sex + train.Embarked + train.FamilySize + train.Pclass, data = train)
+
+```
+Para los anteriores modelos de regresión lineal múltiple obtenidos, podemos utilizar el coeficiente de determinación para medir la bondad de los ajustes y quedarnos con aquel modelo que mejor coeficiente presente.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+tabla.coeficientes <- matrix(c(1, summary(modelo1)$r.squared,
+                              2, summary(modelo2)$r.squared,
+                              3, summary(modelo3)$r.squared,
+                              4, summary(modelo4)$r.squared,
+                              5, summary(modelo5)$r.squared,
+                              6, summary(modelo6)$r.squared,
+                              7, summary(modelo7)$r.squared),
+                              ncol = 2, byrow = TRUE)
+colnames(tabla.coeficientes) <- c("Modelo", "R^2")
+tabla.coeficientes
+```
+
 # Representación de los resultados a partir de tablas y gráficas
-
-# Resolución del problema. A partir de los resultados obtenidos, Â¿cuáles son las conclusiones? Â¿Los resultados permiten responder al problema?
-
-
-
-******
-# Ejemplo de estudio visual con el juego de datos Titanic
-******
-
-## Procesos de limpieza del juego de datos
-
-Primer contacto con el juego de datos, visualizamos su estructura.  
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-
-# Guardamos el juego de datos test y train en un Ãºnico dataset
-test <- read.csv('./data/titanic-test.csv',stringsAsFactors = FALSE)
-train <- read.csv('./data/titanic-train.csv', stringsAsFactors = FALSE)
-
-# Unimos los dos juetos de datos en uno solo
-totalData <- bind_rows(train,test)
-filas=dim(train)[1]
-
-# Verificamos la estructura del juego de datos
-str(totalData)
-```
-
-Trabajamos los atributos con valores vacáos.  
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-# Estadásticas de valores vacáos
-colSums(is.na(totalData))
-colSums(totalData=="")
-
-# Tomamos valor "C" para los valores vacáos de la variable "Embarked"
-totalData$Embarked[totalData$Embarked==""]="C"
-
-#Para los valores perdidos procedemos con aplicar la distancia de Gower
-totalData <- kNN(totalData)
-```
 
 Discretizamos cuando tiene sentido y en función de cada variable.  
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 # ¿Para qué variables tendráa sentido un proceso de discretización?
-apply(totalData,2, function(x) length(unique(x)))
+apply(train,2, function(x) length(unique(x)))
 
 # Discretizamos las variables con pocas clases
 cols<-c("Survived","Pclass","Sex","Embarked")
 for (i in cols){
-  totalData[,i] <- as.factor(totalData[,i])
+  train[,i] <- as.factor(train[,i])
 }
 
 # Después de los cambios, analizamos la nueva estructura del juego de datos
-str(totalData)
-```
-Cuadro de las estimaciónes no robustas y robustas.
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-age_s<-summary(totalData$Age)
-pclass_s<-summary(totalData$Pclass)
-sibSp_s<-summary(totalData$SibSp)
-parch_s<-summary(totalData$Parch)
-fare_s<-summary(totalData$Fare)
-
-table_s <- suppressWarnings(rbind(age_s,pclass_s,sibSp_s,parch_s, fare_s))
-age_r <- c(sd(totalData$Age), winsor.mean(totalData$Age,trim=0.05), IQR(totalData$Age))
-pclass_r <- c(sd(totalData$Pclass), "NA", IQR(totalData$Pclass))
-#pclass_r <- c(sd(totalData$Pclass), winsor.mean(totalData$Pclass,trim=0.05), IQR(totalData$Pclass))
-sibSp_r <- c(sd(totalData$SibSp), winsor.mean(totalData$SibSp,trim=0.05), IQR(totalData$SibSp))
-parch_r <- c(sd(totalData$Parch), winsor.mean(totalData$Parch,trim=0.05), IQR(totalData$Parch))
-fare_r <- c(sd(totalData$Fare), winsor.mean(totalData$Fare,trim=0.05), IQR(totalData$Fare))
-
-table_r <- rbind(age_r,pclass_r,sibSp_r, parch_r, fare_r)
-table_res <- cbind(table_s, table_r)
-colnames( table_res) <- c("Min", "1st Qu", "Median", "Mean", "3rd Qu", "Max", "SD", "WINSOR", "IQR")
-kable(table_res)
-```
-Detactamos a los valores atápicos    
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-#Los valores atápicos SibSp.
-boxplot.stats(totalData$SibSp)$out
-#Los valores atápicos Parch.
-boxplot.stats(totalData$Parch)$out
-#Los valores atápicos Fare.
-boxplot.stats(totalData$Fare)$out
-```
-
-Remplazamos a los valores atápicos
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-#Parch
-qnt <- quantile(totalData$Parch, probs=c(.25, .75), na.rm = T)
-caps <- quantile(totalData$Parch, probs=c(.05, .95), na.rm = T)
-H <- 1.5 * IQR(totalData$Parch, na.rm = T)
-totalData$Parch[totalData$Parch < (qnt[1] - H)] <- caps[1]
-totalData$Parch[totalData$Parch > (qnt[1] + H)] <- caps[2]
-
-#Fare
-qnt <- quantile(totalData$Fare, probs=c(.25, .75), na.rm = T)
-caps <- quantile(totalData$Fare, probs=c(.05, .95), na.rm = T)
-H <- 1.5 * IQR(totalData$Fare, na.rm = T)
-totalData$Fare[totalData$Fare < (qnt[1] - H)] <- caps[1]
-totalData$Fare[totalData$Fare > (qnt[1] + H)] <- caps[2]
-
-#Los valores atápicos Parch.
-boxplot.stats(totalData$Parch)$out
-#Los valores atápicos Fare.
-boxplot.stats(totalData$Fare)$out
-
-```
-
-
-## Procesos de análisis del juego de datos
-
-Nos proponemos analizar las relaciones entre las diferentes variables del juego de datos.
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-# Visualizamos la relación entre las variables "sex" y "survival":
-ggplot(data=totalData[1:filas,],aes(x=Sex,fill=Survived))+geom_bar()
-
-# Otro punto de vista. Survival como función de Embarked:
-ggplot(data = totalData[1:filas,],aes(x=Embarked,fill=Survived))+geom_bar(position="fill")+ylab("Frecuencia")
-
+str(train)
 ```
 
 Obtenemos una matriz de porcentages de frecuencia.  
 Vemos, por ejemplo que la probabilidad de sobrebivir si se embarcó en "C" es de un 55,88%
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-t<-table(totalData[1:filas,]$Embarked,totalData[1:filas,]$Survived)
+filas=dim(train)[1]
+t<-table(train[1:filas,]$Embarked,train[1:filas,]$Survived)
 for (i in 1:dim(t)[1]){
     t[i,]<-t[i,]/sum(t[i,])*100
 }
@@ -454,26 +479,23 @@ Veamos ahora como en un mismo gráfico de frecuencias podemos trabajar con 3 var
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Now, let's devide the graph of Embarked by Pclass:
-ggplot(data = totalData[1:filas,],aes(x=Embarked,fill=Survived))+geom_bar(position="fill")+facet_wrap(~Pclass)
+ggplot(data = train[1:filas,],aes(x=Embarked,fill=Survived))+geom_bar(position="fill")+facet_wrap(~Pclass)
 ```
 
 Comparemos ahora dos gráficos de frecuencias: Survived-SibSp y Survived-Parch
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Survivial como función de SibSp y Parch
-ggplot(data = totalData[1:filas,],aes(x=SibSp,fill=Survived))+geom_bar()
-ggplot(data = totalData[1:filas,],aes(x=Parch,fill=Survived))+geom_bar()
+ggplot(data = train[1:filas,],aes(x=SibSp,fill=Survived))+geom_bar()
+ggplot(data = train[1:filas,],aes(x=Parch,fill=Survived))+geom_bar()
 # Vemos como las forma de estos dos gráficos es similar. Este hecho nos puede indicar presencia de correlaciones altas.
 ```
 
 Veamos un ejemplo de construcción de una variable nueva: TamaÃ±o de familia
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-
-# Construimos un atributo nuevo: family size.
-totalData$FamilySize <- totalData$SibSp + totalData$Parch +1;
-totalData1<-totalData[1:filas,]
-ggplot(data = totalData1[!is.na(totalData[1:filas,]$FamilySize),],aes(x=FamilySize,fill=Survived))+geom_histogram(binwidth =1,position="fill")+ylab("Frecuencia")
+train1<-train[1:filas,]
+ggplot(data = train1[!is.na(train[1:filas,]$FamilySize),],aes(x=FamilySize,fill=Survived))+geom_histogram(binwidth =1,position="fill")+ylab("Frecuencia")
 
 # Observamos como familias de entre 2 y 6 miembros tienen más del 50% de posibilidades de supervivencia.  
 ```
@@ -483,6 +505,10 @@ Observamos como el parámetro position="fill" nos da la proporción acumulada de
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Survival como función de age:
-ggplot(data = totalData1[!(is.na(totalData[1:filas,]$Age)),],aes(x=Age,fill=Survived))+geom_histogram(binwidth =3)
-ggplot(data = totalData1[!is.na(totalData[1:filas,]$Age),],aes(x=Age,fill=Survived))+geom_histogram(binwidth = 3,position="fill")+ylab("Frecuencia")
+ggplot(data = train1[!(is.na(train[1:filas,]$Age)),],aes(x=Age,fill=Survived))+geom_histogram(binwidth =3)
+ggplot(data = train1[!is.na(train[1:filas,]$Age),],aes(x=Age,fill=Survived))+geom_histogram(binwidth = 3,position="fill")+ylab("Frecuencia")
 ```
+
+
+# Resolución del problema. A partir de los resultados obtenidos, ¿cuáles son las conclusiones? ¿Los resultados permiten responder al problema?
+
