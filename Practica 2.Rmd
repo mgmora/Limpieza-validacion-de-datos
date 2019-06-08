@@ -105,8 +105,8 @@ son los correctos. Si no es asá, conviertelos al tipo oportuno.
 
 ## Borrar a las columnas innecesarias
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-train <- select(train, -Name, -Fare, -Ticket )
-test  <- select(test, -Name, -Fare, -Ticket )
+train <- select(train, -Name, -Ticket )
+test  <- select(test, -Name, -Ticket )
 head (train)
 ```
 
@@ -331,6 +331,10 @@ for (i in 3:(ncol(train) - 1)) {
   }
 }
 print(corr_matrix)
+
+is_number <- sapply(train,is.numeric)
+correlacion <-cor(train[,is_number])
+correlacion
 ```
 
 Así, identificamos cuáles son las variables más correlacionadas con el precio en función de su proximidad con los valores -1 y +1. Teniendo esto en cuenta, queda patente cómo la variable más relevante en la supervivencia es la clase donde viajaba el pasajero (Pclass).
@@ -419,16 +423,20 @@ train.FamilySize = train$FamilySize
 train.Sex = train$Sex
 train.Pclass = train$Pclass
 train.Embarked = train$Embarked
+train.Fare = train$Fare
+#train.EmbarkedR=relevel(train$Embarked, ref = 'C')
+#train$educ_levelR=relevel(train$educ_level, ref = 'N')
 # Variable a predecir
 Survived = train$Survived
 # Generación de varios modelos
-modelo1 <- lm(Survived ~ train.Age + train.Sex + train.Embarked + train.sibSp + train.Parch + train.Pclass, data = train)
-modelo2 <- lm(Survived ~ train.sibSp + train.Sex + train.Embarked + train.Parch + train.Pclass, data = train)
-modelo3 <- lm(Survived ~ train.Age + train.Sex + train.Embarked + train.Parch + train.Pclass, data = train)
-modelo4 <- lm(Survived ~ train.Age + train.Sex + train.Embarked + train.sibSp + train.Pclass, data = train)
-modelo5 <- lm(Survived ~ train.Age + train.Sex + train.Embarked + train.sibSp + train.Parch , data = train)
-modelo6 <- lm(Survived ~ train.Age + train.Sex + train.Embarked + train.FamilySize + train.Pclass, data = train)
-modelo7 <- lm(Survived ~ train.Sex + train.Embarked + train.FamilySize + train.Pclass, data = train)
+modelo1 <- lm(Survived ~ train.Age +train.Fare + train.Sex + train.Embarked + train.sibSp + train.Parch + train.Pclass, data = train)
+#modelo1 <- lm(Survived ~ train.Age + train.Pclass, data = train)
+modelo2 <- lm(Survived ~ train.sibSp + train.Fare + train.Sex + train.Embarked + train.Parch + train.Pclass, data = train)
+modelo3 <- lm(Survived ~ train.Age + train.Fare + train.Sex + train.Embarked + train.Parch + train.Pclass, data = train)
+modelo4 <- lm(Survived ~ train.Age + train.Fare + train.Sex + train.Embarked + train.sibSp + train.Pclass, data = train)
+modelo5 <- lm(Survived ~ train.Age + train.Fare + train.Sex + train.Embarked + train.sibSp + train.Parch , data = train)
+modelo6 <- lm(Survived ~ train.Age + train.Fare + train.Sex + train.Embarked + train.FamilySize + train.Pclass, data = train)
+modelo7 <- lm(Survived ~ train.Sex + train.Fare + train.Embarked + train.FamilySize + train.Pclass, data = train)
 
 ```
 Para los anteriores modelos de regresión lineal múltiple obtenidos, podemos utilizar el coeficiente de determinación para medir la bondad de los ajustes y quedarnos con aquel modelo que mejor coeficiente presente.
@@ -511,4 +519,17 @@ ggplot(data = train1[!is.na(train[1:filas,]$Age),],aes(x=Age,fill=Survived))+geo
 
 
 # Resolución del problema. A partir de los resultados obtenidos, ¿cuáles son las conclusiones? ¿Los resultados permiten responder al problema?
+
+##Calidad del ajuste
+Calcular la matriz de confusión del mejor modelo del apartado 2.3 suponiendo un umbral de discriminación del 75 %. Observad cuantos falsos negativos hay e interpretar qué es un falso negativo en este contexto. Hacer lo mismo con los falsos positivos.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+train$prob_Survived= predict(modelo6, train, type="response")
+train$pred_Survived <- ifelse(train$prob_Survived > 0.75,1,0)
+table(train$Survived, train$pred_Survived)
+```
+
+Un falso negativo en este concepto corresponde a los trabajadores con baja satisfacción laboral. Tenemos `r table(train$Survived, train$pred_Survived)[2][1]` falsos negativos. 
+
+Un falso positivo en este concepto corresponde a los trabajadores con alta satisfacción laboral. Tenemos `r table(train$Survived, train$pred_Survived)[3]` falsos positivos. 
 
