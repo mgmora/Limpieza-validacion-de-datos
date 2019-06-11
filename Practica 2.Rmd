@@ -1,5 +1,5 @@
 ---
-title: "Tipologáa y ciclo de vida de los datos: Práctica 2: Limpieza y validación de los datos"
+title: "Tipología y ciclo de vida de los datos: Práctica 2: Limpieza y validación de los datos"
 author: "Autores: Youness El Guennouni y Mario Gutiérrez Calvo de Mora"
 date: "Mayo 2019"
 output:
@@ -37,7 +37,7 @@ library(nortest)
 
 trabajaremos con el juego de datos "Titanic" que recoge datos sobre el famoso crucero y sobre el que es fácil realizar tareas de clasificación predictiva sobre la variable "Survived".
 
-Las actividades que llevaremos a cabo en esta práctica suelen enmarcarse en las fases iniciales de un proyecto de mineráa de datos y consisten en la selección de caraterásticas o variables y la preparación del juego de datos para posteriormente ser consumido por un algoritmo. 
+Las actividades que llevaremos a cabo en esta práctica suelen enmarcarse en las fases iniciales de un proyecto de minería de datos y consisten en la selección de caraterásticas o variables y la preparación del juego de datos para posteriormente ser consumido por un algoritmo. 
 
 Primeramente realizaremos el estudio de las variables de un juego de datos, es decir, haremos un trabajo descriptivo del mismo. Y de forma posterior, realizaremos el estudio de algoritmos predictivos y las conclusiones que se pueden extraer del estudio. 
 
@@ -46,14 +46,14 @@ Siguiendo las principales etapas de un proyecto analático, las diferentes tarea
 1. Descripción del dataset. ¿Por qué es importante y qué pregunta/problema pretende responder?
 2. Integración y selección de los datos de interés a analizar.
 3. Limpieza de los datos.
-3.1. ¿Los datos contienen ceros o elementos vacáos? ¿Cómo gestionaráas cada uno de estos casos?
+3.1. ¿Los datos contienen ceros o elementos vacáos? ¿Cómo gestionarías cada uno de estos casos?
 3.2. Identificación y tratamiento de valores extremos.
 4. Análisis de los datos.
 4.1. Selección de los grupos de datos que se quieren analizar/comparar (planificación de los análisis a aplicar).
 4.2. Comprobación de la normalidad y homogeneidad de la varianza.
 4.3. Aplicación de pruebas estadásticas para comparar los grupos de datos. En función de los datos y el objetivo del estudio, aplicar pruebas de contraste de hipótesis, correlaciones, regresiones, etc. Aplicar al menos tres métodos de análisis diferentes.
 5. Representación de los resultados a partir de tablas y gráficas.
-6. Resolución del problema. A partir de los resultados obtenidos, Â¿cuáles son las conclusiones? Â¿Los resultados permiten responder al problema?
+6. Resolución del problema. A partir de los resultados obtenidos, ¿cuáles son las conclusiones? ¿Los resultados permiten responder al problema?
 7. Código: Hay que adjuntar el código, preferiblemente en R, con el que se ha realizado la limpieza, análisis y representación de los datos. Si lo preferás, también podéis trabajar en Python.
 
 
@@ -89,7 +89,7 @@ son los correctos. Si no es asá, conviertelos al tipo oportuno.
 
 * Archivo de datos (`train.csv`)  
 ```{r lectura, echo=TRUE, eval=TRUE}
- train <- read.csv( "train.csv")
+ train <- read.csv( "./data/train.csv")
  head(train)
  
  sapply( train, class)
@@ -97,7 +97,7 @@ son los correctos. Si no es asá, conviertelos al tipo oportuno.
 
 * Archivo de los tests (`test.csv`)
 ```{r lectura2, echo=TRUE, eval=TRUE}
- test <- read.csv( "test.csv")
+ test <- read.csv( "./data/test.csv")
  head(test)
  
  sapply( test, class)
@@ -117,13 +117,13 @@ En esta sección vamos a llevar a cabo el proceso de limpieza de datos que consi
 A continuación vamos a detectar a los valores vacios y nulos.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-# Estad?sticas de valores vacáos
+# Estadísticas de valores vacíos
 colSums(is.na(train))
 colSums(train=="")
 
 ```
 
-Llegados a este punto debemos decidir cómo manejar estos registros que contienen valores desconocidos para algun campo. Una opción podrá ser eliminar esos registros que incluyen este tipo de valores, pero ello supondráa desaprovechar información.  
+Llegados a este punto debemos decidir cómo manejar estos registros que contienen valores desconocidos para algun campo. Una opción podrá ser eliminar esos registros que incluyen este tipo de valores, pero ello supondría desaprovechar información.  
 Como alternativa, se empleará un método de imputación de valores basado en la similitud o diferencia entre los registros: la imputación basada en k vecinos más próximos.  La elección de esta alternativa se realiza bajo la hipótesis de que nuestros registros guardan cierta relación. No obstante, es mejor trabajar con datos aproximados que con los propios elementos vacíos, ya que obtendremos análisis con menor margen de error.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
@@ -263,7 +263,7 @@ train.parch.mayor <- train[train$Parch > "0",]
 train.sibSp.cero <- train[train$SibSp == "0",]
 train.sibSp.mayor <- train[train$SibSp > "0",]
 
-#Usar el termino de tamaÃ±o de la familia sumando parch y SibSp
+#Usar el termino de tamaño de la familia sumando parch y SibSp
 train$FamilySize <- train$SibSp + train$Parch +1;
 
 
@@ -453,12 +453,100 @@ colnames(tabla.coeficientes) <- c("Modelo", "R^2")
 tabla.coeficientes
 ```
 
+
+##Modelo de regresión logística
+
+Trabajaremos con la variable binaria (Survived) que indica la condición de sobrevivir o no.
+Estimar el modelo de regresión logística donde la variable dependiente es "Survived" y las explicativas son la capacidad pulmonar Fare, Age y Sex. 
+
+Evaluar si alguno de los regresores tiene influencia significativa  (p-valor del contraste individual inferior al 5%).
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+Model.2.1=glm(Survived~Fare + Age + Sex, family=binomial, data=train)
+summary(Model.2.1)
+
+sel <- which(summary(Model.2.1)$coefficients[-1,4] < 0.05)
+sel <- sel + 1
+```
+
+Ha sido algo significativo el test parcial sobre la variable Sex(Male). siendo la estimación de su coeficiente -2.4017.
+
+Se podría decir que un individuo con más posibilidades de ser mujer, tiene mayor probabilidad de sobrevivir, ya que el signo negativo en Sex(Male) es un factor de "protección" ante el riesgo de sobrevivir. entonces cuantas menos posibilidades de ser hombre, mayor probabilidad de sobrevivir.
+
+
+## Creación del modelo, calidad del modelo y extracción de reglas en clasificación arboles de decisión
+
+Nuestro objetivo es crear un árbol de decisión que permita analizar qué tipo de pasajero del Titanic tenía probabilidades de sobrevivir o no. Por lo tanto, la variable por la que clasificaremos es el campo de si el pasajero sobrevivió o no. De todas maneras, al imprimir las primeras y últimas 10 filas nos damos cuenta de que los datos están ordenados, por lo tanto, nos interesará "desordenarlos". Guardaremos los datos con el nuevo nombre como "train_random".
+Vamos a usar solo el juego de datos "train" dado que es el único que contiene la variable Survived.
+
+```{r}
+#Mediante head() obtenemos las primeras filas de nuestro dataframe
+head(train,10)
+#Mediante head() obtenemos las últimas filas de nuestro dataframe
+tail(train,10)
+set.seed(666)
+#Queremos "desordenar" los datos
+train_random <- train[sample(nrow(train)),]
+```
+
+Vamos a separar las columnas que consideramos más representaticas y la variable por la que clasificaremos que será si ha sobrevivido o no. 
+
+```{r}
+#la variable por la que clasificaremos es el campo de si el pasajero sobrevivió o no, 
+#que está en la cuarta columna.
+
+train_random$Pclass<-as.factor(train_random$Pclass)
+train_random$Survived<-as.factor(train_random$Survived)
+
+set.seed(666)
+trainy <-train_random[,c(2)] #SURVIVED
+trainX <- train_random[,c(3,4,9,10)] #Resto de variables
+
+levels(trainX$Cabin)[1] = "missing"
+levels(trainX$Embarked)[1] = "missing"
+
+```
+
+Ejecutamos el modelo.
+
+```{r}
+#Se crea el arbol de decision usando los datos de Entrenamiento.
+model_class <- C50::C5.0(trainX, trainy, rules=TRUE )
+summary(model_class)
+```
+
+Errors muestra el número y porcentaje de casos mal clasificados, erróneamente 168 de los 891 casos dados, una tasa de error del 18.9%.
+
+A partir del árbol de decisión que hemos modelado, se pueden extraer las siguientes reglas de decisión (gracias a rules=TRUE podemos imprimir las reglas directamente):
+
+SEX = "male" → Muere Validez: 81%
+
+CLASS = "3a" → Muere Validez: 75,7%
+
+CLASS = (1,2) y SEX = "female" → Sobrevive Validez: 94,2%
+
+CLASS (C,Q) y SEX = "female" → Sobrevive Validez: 83,2%
+
+Por tanto podemos concluir que el conocimiento extraido se resume en "las mujeres que viajaban en 1a y 2a clase sobreviven". También que "Las mujeres que embarcaron en Cherbourg o en Queenstown sobreviven", esta última con un porcentaje de predicción menor.
+
+Visualizaremos el árbol en el siguiente apartado.
+
+
+
 # Representación de los resultados a partir de tablas y gráficas
+
+Generación del árbol.
+
+```{r}
+model <- C50::C5.0(trainX, trainy)
+plot(model)
+```
 
 Discretizamos cuando tiene sentido y en función de cada variable.  
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-# ¿Para qué variables tendráa sentido un proceso de discretización?
+# ¿Para qué variables tendría sentido un proceso de discretización?
 apply(train,2, function(x) length(unique(x)))
 
 # Discretizamos las variables con pocas clases
@@ -499,7 +587,7 @@ ggplot(data = train[1:filas,],aes(x=Parch,fill=Survived))+geom_bar()
 # Vemos como las forma de estos dos gráficos es similar. Este hecho nos puede indicar presencia de correlaciones altas.
 ```
 
-Veamos un ejemplo de construcción de una variable nueva: TamaÃ±o de familia
+Veamos un ejemplo de construcción de una variable nueva: Tamaño de familia
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 train1<-train[1:filas,]
@@ -520,6 +608,12 @@ ggplot(data = train1[!is.na(train[1:filas,]$Age),],aes(x=Age,fill=Survived))+geo
 
 # Resolución del problema. A partir de los resultados obtenidos, ¿cuáles son las conclusiones? ¿Los resultados permiten responder al problema?
 
+Aunque consideramos que los datos no eran suficientes en volumen para extraer ideas más contundentes, se han podido extraer ideas como:
+
+1. Las mujeres que viajaban en primera y segunda clase prácticamente sobrevivieron. 
+2. Que murieron más hombres que mujeres.
+3. Que murió mucha gente que viajaba en 3a clase.
+
 ##Calidad del ajuste
 Calcular la matriz de confusión del mejor modelo del apartado 2.3 suponiendo un umbral de discriminación del 75 %. Observad cuantos falsos negativos hay e interpretar qué es un falso negativo en este contexto. Hacer lo mismo con los falsos positivos.
 
@@ -529,7 +623,8 @@ train$pred_Survived <- ifelse(train$prob_Survived > 0.75,1,0)
 table(train$Survived, train$pred_Survived)
 ```
 
-Un falso negativo en este concepto corresponde a los trabajadores con baja satisfacción laboral. Tenemos `r table(train$Survived, train$pred_Survived)[2][1]` falsos negativos. 
+Un falso negativo en este concepto corresponde a los viajeros que se han predecido como no sobrevivientes cuando realmente sí han sobrevivido. Tenemos `r table(train$Survived, train$pred_Survived)[2][1]` falsos negativos. 
 
-Un falso positivo en este concepto corresponde a los trabajadores con alta satisfacción laboral. Tenemos `r table(train$Survived, train$pred_Survived)[3]` falsos positivos. 
+Un falso positivo en este concepto corresponde a los viajeros que se han predicho como sobrevivientes y no lo han sido realmente. Tenemos `r table(train$Survived, train$pred_Survived)[3]` falsos positivos. 
+
 
