@@ -84,7 +84,7 @@ Es importante saber a que preguntas debemos de responder para definir un objetiv
 Desde el análisis de los datos podemos descartar algunos factores desde el inicio como el numero de ticket, tarifa o nombre de pasajero. Otro dato que decidimos no tenerle en cuenta es la cabina ya que más de 70% vienen vacios.
 
 ## Lectura de ficheros
-Cargar a los archivos `train.csv` y`test.csv`. Una vez cargado el archivo, valida que los tipos de datos
+Cargar a los archivos `train.csv` y `test.csv`. Una vez cargado el archivo, valida que los tipos de datos
 son los correctos. Si no es asá, conviertelos al tipo oportuno.
 
 * Archivo de datos (`train.csv`)  
@@ -445,7 +445,7 @@ tabla.coeficientes
 ##Modelo de regresión logística
 
 Trabajaremos con la variable binaria (Survived) que indica la condición de sobrevivir o no.
-Estimar el modelo de regresión logística donde la variable dependiente es "Survived" y las explicativas son la capacidad pulmonar Fare, Age y Sex. 
+Estimar el modelo de regresión logística donde la variable dependiente es "Survived" y las explicativas son la Fare, Age y Sex. 
 
 Evaluar si alguno de los regresores tiene influencia significativa  (p-valor del contraste individual inferior al 5%).
 
